@@ -74,6 +74,33 @@ services:
         condition: service_healthy
     restart: always
 
+  jupyter:
+    image: jupyter/scipy-notebook:latest
+    container_name: tm_jupyter
+    user: root
+    environment:
+      NB_UID: ${JUPYTER_UID}
+      NB_GID: "100"
+      CHOWN_HOME: "yes"
+      JUPYTER_TOKEN: ${JUPYTER_TOKEN}
+      JUPYTER_ENABLE_LAB: "yes"
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      DATA_DB_CONN: postgresql+psycopg2://${POSTGRES_DATA_USER}:${POSTGRES_DATA_PASSWORD}@postgres_data:5432/${POSTGRES_DATA_DB}
+    ports:
+      - "8004:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./data:/home/jovyan/data:ro
+    depends_on:
+      postgres_data:
+        condition: service_healthy
+      mlflow:
+        condition: service_started
+    restart: always
+
 volumes:
   postgres_data:
   postgres_mlflow:
