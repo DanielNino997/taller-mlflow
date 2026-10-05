@@ -75,7 +75,7 @@ services:
     restart: always
 
   jupyter:
-    image: jupyter/scipy-notebook:latest
+    build: ./jupyter
     container_name: tm_jupyter
     user: root
     environment:
